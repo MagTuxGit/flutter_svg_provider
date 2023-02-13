@@ -99,29 +99,33 @@ class Svg extends ImageProvider<SvgImageKey> {
     }
     switch (key.source) {
       case SvgSource.network:
-        return await http.read(Uri.parse(key.path));
+        return http.read(Uri.parse(key.path));
       case SvgSource.asset:
-        return await rootBundle.loadString(key.path);
+        return rootBundle.loadString(key.path);
       case SvgSource.file:
-        return await File(key.path).readAsString();
+        return File(key.path).readAsString();
     }
   }
 
   static Future<ImageInfo> _loadAsync(SvgImageKey key) async {
     final String rawSvg = await _getSvgString(key);
-    final DrawableRoot svgRoot = await svg.fromSvgString(rawSvg, key.path);
-    final ui.Picture picture = svgRoot.toPicture(
-      size: Size(
-        key.pixelWidth.toDouble(),
-        key.pixelHeight.toDouble(),
-      ),
-      clipToViewBox: false,
-      colorFilter: ColorFilter.mode(
-        getFilterColor(key.color),
-        BlendMode.srcATop,
-      ),
-    );
-    final ui.Image image = await picture.toImage(
+    // final DrawableRoot svgRoot = await svg.fromSvgString(rawSvg, key.path);
+    // final DrawableRoot svgRoot = await svg.fromSvgString(rawSvg, key.path);
+    final PictureInfo pictureInfo =
+        await vg.loadPicture(SvgStringLoader(rawSvg), null);
+
+    // final ui.Picture picture = svgRoot.toPicture(
+    //   size: Size(
+    //     key.pixelWidth.toDouble(),
+    //     key.pixelHeight.toDouble(),
+    //   ),
+    //   clipToViewBox: false,
+    //   colorFilter: ColorFilter.mode(
+    //     getFilterColor(key.color),
+    //     BlendMode.srcATop,
+    //   ),
+    // );
+    final ui.Image image = await pictureInfo.picture.toImage(
       key.pixelWidth,
       key.pixelHeight,
     );
